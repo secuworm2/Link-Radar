@@ -65,10 +65,11 @@ Output artifact:
    OR
    <br/><img width="800" alt="image" src="https://github.com/user-attachments/assets/9f218fa9-628b-4d8d-b358-80405ad7ec7d" />
 
-4. Review collected endpoints in the `Link Radar` tab.
-5. Optionally filter with the search box.
-6. Select one or more rows and click `Send to Repeater` (or `Ctrl+R` inside the tab).
-7. Optionally export with `Export CSV`.
+3. Review collected endpoints in the `Link Radar` tab.
+4. Optionally filter with the search box.
+5. Select one or more rows and click `Send to Repeater` (or `Ctrl+R` inside the tab).
+   <img width="800"  alt="image" src="https://github.com/user-attachments/assets/2b722524-af05-4d0c-a49d-22ca88855be8" />
+6. Optionally export with `Export CSV`.
 
 ## Project Commands
 

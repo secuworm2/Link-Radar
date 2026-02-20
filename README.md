@@ -61,9 +61,9 @@ Output artifact:
 
 1. In `Proxy` -> `HTTP history`, select one or more messages.
 2. Right-click and choose `Send to Link Radar` (or use `Ctrl+G` if enabled).
-   <img width="800" alt="image" src="https://github.com/user-attachments/assets/1b96b7e8-d1b4-4c30-84dc-df3b3cd07149" />
+   <img width="800" alt="image" src="https://github.com/user-attachments/assets/1b96b7e8-d1b4-4c30-84dc-df3b3cd07149" /><br/>
    OR
-   <img width="800" alt="image" src="https://github.com/user-attachments/assets/9f218fa9-628b-4d8d-b358-80405ad7ec7d" />
+   <br/><img width="800" alt="image" src="https://github.com/user-attachments/assets/9f218fa9-628b-4d8d-b358-80405ad7ec7d" />
 
 4. Review collected endpoints in the `Link Radar` tab.
 5. Optionally filter with the search box.

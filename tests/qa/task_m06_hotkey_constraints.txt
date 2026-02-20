@@ -1,0 +1,15 @@
+TASK-M06 Hotkey Constraints
+
+Supported
+- Hotkey: Ctrl+G
+- Registration API: Montoya `registerHotKeyHandler`
+- Context: `HTTP_MESSAGE_EDITOR`
+- Action: selected/editor message is forwarded to Endpoint Collector selected-scan path
+
+Behavior Notes
+- If there is no selected/editor message, status shows `No selected messages.`
+- If scan is already running, a new scan is not started and status shows `Scan already running.`
+
+Unsupported (MVP)
+- Proxy history table multi-selection direct trigger by hotkey is not supported in this task.
+- Contexts outside `HTTP_MESSAGE_EDITOR` are not covered by this hotkey registration.

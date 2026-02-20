@@ -1,0 +1,18 @@
+TASK-M05 Manual QA Checklist
+
+1) Item-level failure isolation
+- In Burp, include at least one malformed/unsupported response and normal responses together in scan scope.
+- Run scan and verify scan continues to completion for remaining items.
+- Verify status message shows completion summary instead of immediate abort.
+
+2) User status vs developer logs separation
+- Trigger a controllable failure case (for example invalid export path or forced parser failure build).
+- Verify user-facing status bar shows concise message:
+  - Example: "Scan failed." or "Export failed: ..."
+- Verify Burp Extender Output/Error contains technical details:
+  - Example: "[Endpoint Collector] scan item failed: ..."
+
+3) Representative sample verification
+- Run regression command:
+  - `./gradlew runTaskM05Regression` (or `.\gradlew.bat runTaskM05Regression` on Windows)
+- Verify command exits with `BUILD SUCCESSFUL`.

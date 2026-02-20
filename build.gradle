@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.secuworm'
+version = '0.1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'net.portswigger.burp.extensions:montoya-api:2026.2'
+    implementation 'org.mozilla:rhino:1.7.15'
+    testRuntimeOnly 'net.portswigger.burp.extensions:montoya-api:2026.2'
+}
+
+tasks.register('copyExtensionJar', Copy) {
+    dependsOn tasks.jar
+    from(tasks.jar.archiveFile)
+    into(layout.buildDirectory.dir('dist'))
+}
+
+tasks.named('jar', Jar) {
+    archiveBaseName.set('link-radar')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { dependency ->
+            dependency.isDirectory() ? dependency : zipTree(dependency)
+        }
+    }
+}
+
+sourceSets {
+    test {
+        java {
+            srcDirs = ['tests/java']
+        }
+    }
+}
+
+tasks.register('runTaskM05Regression', JavaExec) {
+    dependsOn tasks.testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.secuworm.endpointcollector.TaskM05Regression'
+}

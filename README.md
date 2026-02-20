@@ -1,4 +1,4 @@
-<img width="980" height="870" alt="image" src="https://github.com/user-attachments/assets/b3b223c5-28d2-4559-aabf-0b01de9cc9ef" /># Link Radar
+# Link Radar
 
 Link Radar is a Burp Suite extension that extracts endpoint URLs from HTTP response bodies and helps you triage and replay them quickly.
 
@@ -52,7 +52,7 @@ Output artifact:
 3. Click `Add`.
 4. Choose extension type `Java`.
 5. Select `build/libs/link-radar-1.0.jar`.
-   <img width="980" height="870" alt="image" src="https://github.com/user-attachments/assets/0033d1aa-d252-40ca-b1a6-dbafe32b789f" />
+   <img width="700" alt="image" src="https://github.com/user-attachments/assets/0033d1aa-d252-40ca-b1a6-dbafe32b789f" />
 
 6. Confirm it loads and check the `Link Radar` tab.
 

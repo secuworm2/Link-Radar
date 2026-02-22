@@ -79,7 +79,8 @@ Output artifact:
    - Plain mode example: `*.js !Agent`
    - Regex mode: check `Regex`, then use regex tokens (example: `\\.js$ !agent`)
 5. Select one or more rows and click `Send to Repeater` (or `Ctrl+R` inside the tab).
-   <img width="800"  alt="image" src="https://github.com/user-attachments/assets/2b722524-af05-4d0c-a49d-22ca88855be8" />
+   <img width="800" alt="image" src="https://github.com/user-attachments/assets/4b25fb1a-1026-4c0d-8c00-2e6336b902db" />
+
 6. Optionally export with `Export CSV`.
 
 ## Project Commands

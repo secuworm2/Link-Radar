@@ -81,7 +81,7 @@ Windows:
    - 정규식 모드: `Regex` 체크 후 정규식 토큰 사용 (예: `\\.js$ !agent`)
 5. 행을 1개 이상 선택하고 `Send to Repeater`를 클릭합니다 (탭 내부 `Ctrl+R` 가능).
 
-   <img width="800" alt="image" src="https://github.com/user-attachments/assets/2b722524-af05-4d0c-a49d-22ca88855be8" />
+      <img width="800" alt="image" src="https://github.com/user-attachments/assets/4b25fb1a-1026-4c0d-8c00-2e6336b902db" />
 
 6. 필요하면 `Export CSV`로 내보냅니다.
 

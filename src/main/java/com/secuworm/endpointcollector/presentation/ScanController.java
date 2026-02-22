@@ -17,6 +17,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,6 +79,9 @@ public class ScanController {
 
         Thread worker = new Thread(() -> runScan(scopeType, selectedItems), "endpoint-scan-worker");
         worker.setDaemon(true);
+        worker.setUncaughtExceptionHandler((thread, throwable) ->
+            logError("scan worker crashed: " + throwable.getMessage(), throwable)
+        );
         synchronized (lock) {
             scanThread = worker;
         }
@@ -131,7 +136,7 @@ public class ScanController {
             runOnUi(this::applyFilterAndRender);
         } catch (Exception ex) {
             failed = true;
-            logError("scan failed: " + ex.getMessage());
+            logError("scan failed: " + ex.getMessage(), ex);
         } finally {
             synchronized (lock) {
                 isScanning = false;
@@ -311,5 +316,17 @@ public class ScanController {
         if (logger != null) {
             logger.error(message);
         }
+    }
+
+    private void logError(String message, Throwable throwable) {
+        logError(message);
+        if (logger == null || throwable == null) {
+            return;
+        }
+        StringWriter buffer = new StringWriter();
+        try (PrintWriter writer = new PrintWriter(buffer)) {
+            throwable.printStackTrace(writer);
+        }
+        logger.error(buffer.toString());
     }
 }

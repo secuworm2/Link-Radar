@@ -1,5 +1,6 @@
 package com.secuworm.endpointcollector.presentation;
 
+import burp.api.montoya.ui.swing.SwingUtils;
 import com.secuworm.endpointcollector.application.ExportService;
 import com.secuworm.endpointcollector.application.FilterService;
 import com.secuworm.endpointcollector.application.ScanService;
@@ -26,10 +27,13 @@ public class ScanController {
     private final FilterService filterService;
     private final ExportService exportService;
     private final RepeaterSender repeaterSender;
+    private final SwingUtils swingUtils;
     private final ExtensionLogger logger;
     private final Object lock = new Object();
 
+    private volatile boolean unloading;
     private boolean isScanning;
+    private Thread scanThread;
     private List<EndpointRecord> allRecords = new ArrayList<>();
     private List<EndpointRecord> filteredRecords = new ArrayList<>();
 
@@ -40,6 +44,7 @@ public class ScanController {
         FilterService filterService,
         ExportService exportService,
         RepeaterSender repeaterSender,
+        SwingUtils swingUtils,
         ExtensionLogger logger
     ) {
         this.tabView = tabView;
@@ -48,6 +53,7 @@ public class ScanController {
         this.filterService = filterService;
         this.exportService = exportService;
         this.repeaterSender = repeaterSender;
+        this.swingUtils = swingUtils;
         this.logger = logger;
 
         bindActions();
@@ -56,6 +62,9 @@ public class ScanController {
 
     public boolean startScan(String scopeType, List<?> selectedItems) {
         synchronized (lock) {
+            if (unloading) {
+                return false;
+            }
             if (isScanning) {
                 notifyStatus("Scan already running.");
                 return false;
@@ -68,6 +77,9 @@ public class ScanController {
 
         Thread worker = new Thread(() -> runScan(scopeType, selectedItems), "endpoint-scan-worker");
         worker.setDaemon(true);
+        synchronized (lock) {
+            scanThread = worker;
+        }
         worker.start();
         return true;
     }
@@ -82,7 +94,21 @@ public class ScanController {
     }
 
     public void notifyStatus(String message) {
+        if (unloading) {
+            return;
+        }
         runOnUi(() -> tabView.setStatus(message));
+    }
+
+    public void onExtensionUnloaded() {
+        Thread worker;
+        synchronized (lock) {
+            unloading = true;
+            worker = scanThread;
+        }
+        if (worker != null) {
+            worker.interrupt();
+        }
     }
 
     private void runScan(String scopeType, List<?> selectedItems) {
@@ -95,7 +121,7 @@ public class ScanController {
                 historyItems,
                 (totalItems, processedItems, errorCount, uniqueEndpoints) ->
                     notifyStatus("Scanning: " + processedItems + "/" + totalItems + ", errors=" + errorCount + ", unique=" + uniqueEndpoints),
-                () -> false
+                this::isUnloadRequested
             );
 
             List<EndpointRecord> records = scanService.getRecords();
@@ -109,9 +135,13 @@ public class ScanController {
         } finally {
             synchronized (lock) {
                 isScanning = false;
+                scanThread = null;
             }
         }
 
+        if (unloading) {
+            return;
+        }
         setControlsScanning(false);
 
         if (failed) {
@@ -127,6 +157,13 @@ public class ScanController {
                 + ", errors=" + scanResult.getErrorCount()
                 + ", unique=" + scanResult.getUniqueEndpoints()
         );
+    }
+
+    private boolean isUnloadRequested() {
+        if (unloading) {
+            return true;
+        }
+        return Thread.currentThread().isInterrupted();
     }
 
     private void bindActions() {
@@ -235,7 +272,7 @@ public class ScanController {
     private String chooseExportPath() {
         JFileChooser chooser = new JFileChooser();
         chooser.setSelectedFile(new File(AppConfig.EXPORT_DEFAULT_FILENAME));
-        int result = chooser.showSaveDialog(tabView.getRootComponent());
+        int result = chooser.showSaveDialog(resolveParentComponent());
         if (result != JFileChooser.APPROVE_OPTION) {
             return null;
         }
@@ -246,7 +283,23 @@ public class ScanController {
         return selectedFile.getAbsolutePath();
     }
 
+    private java.awt.Component resolveParentComponent() {
+        if (swingUtils != null) {
+            try {
+                java.awt.Frame frame = swingUtils.suiteFrame();
+                if (frame != null) {
+                    return frame;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return tabView.getRootComponent();
+    }
+
     private void runOnUi(Runnable runnable) {
+        if (unloading) {
+            return;
+        }
         if (SwingUtilities.isEventDispatchThread()) {
             runnable.run();
             return;

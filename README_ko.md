@@ -23,7 +23,10 @@ Link Radar는 Burp 내부에서 Proxy history 기반 분석(triage)과 빠른 �
   - HTML Entity 디코딩 (`&amp;`, `&#39;`, `&#x27;`, `&#47;` 등)
   - 동적 토큰 정규화 (`:id`, `${var}`, `[id]` -> `{...}`)
   - 정규식/노이즈 오탐 억제
-- 검색어 기반 필터
+- Endpoint 컬럼 기준 검색 필터:
+  - 일반 모드: 토큰 포함/제외 + 와일드카드(`*`, `?`) 지원
+  - `!` 접두어로 제외 조건 지정 (예: `*.js !Agent`)
+  - `Regex` 체크박스로 정규식 모드 사용 가능
 - CSV 내보내기
 - 선택 endpoint를 Repeater로 전송 (다중 선택 지원, 가능한 경우 원본 method/header 재사용, 탭 내 `Ctrl+R`)
 
@@ -73,7 +76,9 @@ Windows:
    <br/><img width="800" alt="image" src="https://github.com/user-attachments/assets/9f218fa9-628b-4d8d-b358-80405ad7ec7d" />
 
 3. `Link Radar` 탭에서 수집된 endpoint를 확인합니다.
-4. 필요하면 검색창으로 필터링합니다.
+4. 필요하면 검색창으로 필터링합니다 (Endpoint 컬럼 기준).
+   - 일반 모드 예시: `*.js !Agent`
+   - 정규식 모드: `Regex` 체크 후 정규식 토큰 사용 (예: `\\.js$ !agent`)
 5. 행을 1개 이상 선택하고 `Send to Repeater`를 클릭합니다 (탭 내부 `Ctrl+R` 가능).
 
    <img width="800" alt="image" src="https://github.com/user-attachments/assets/2b722524-af05-4d0c-a49d-22ca88855be8" />

@@ -4,6 +4,7 @@ import com.secuworm.endpointcollector.domain.EndpointRecord;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -26,6 +27,7 @@ public class TabView {
 
     private final JPanel rootPanel;
     private final JTextField searchField;
+    private final JCheckBox regexCheckBox;
     private final JButton exportButton;
     private final JButton sendToRepeaterButton;
     private final JLabel statusLabel;
@@ -35,6 +37,7 @@ public class TabView {
     public TabView() {
         rootPanel = new JPanel(new BorderLayout());
         searchField = new JTextField(24);
+        regexCheckBox = new JCheckBox("Regex");
         exportButton = new JButton("Export CSV");
         sendToRepeaterButton = new JButton("Send to Repeater");
         statusLabel = new JLabel("Ready");
@@ -49,6 +52,7 @@ public class TabView {
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftPanel.add(new JLabel("Search:"));
         leftPanel.add(searchField);
+        leftPanel.add(regexCheckBox);
         leftPanel.add(exportButton);
         leftPanel.add(sendToRepeaterButton);
 
@@ -83,6 +87,10 @@ public class TabView {
         return exportButton;
     }
 
+    public JCheckBox getRegexCheckBox() {
+        return regexCheckBox;
+    }
+
     public JButton getSendToRepeaterButton() {
         return sendToRepeaterButton;
     }
@@ -98,6 +106,10 @@ public class TabView {
 
     public String getSearchKeyword() {
         return searchField.getText() == null ? "" : searchField.getText().trim();
+    }
+
+    public boolean isRegexSearchEnabled() {
+        return regexCheckBox.isSelected();
     }
 
     public EndpointRecord getSelectedRecord() {

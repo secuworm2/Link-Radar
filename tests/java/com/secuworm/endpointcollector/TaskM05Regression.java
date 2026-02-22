@@ -27,6 +27,7 @@ public class TaskM05Regression {
     public static void main(String[] args) throws Exception {
         testItemFailureIsolation();
         testSampleDedupeCountFilterAndCsv();
+        testAdvancedFilterSyntaxAndEndpointOnlyScope();
         testHtmlEntityDecoding();
         testHtmlEntityDecodingWithoutSemicolon();
         testDotRelativePathExtractionAndNormalization();
@@ -109,6 +110,69 @@ public class TaskM05Regression {
         } finally {
             Files.deleteIfExists(csvFile);
         }
+    }
+
+    private static void testAdvancedFilterSyntaxAndEndpointOnlyScope() {
+        FilterService filterService = new FilterService();
+        long now = System.currentTimeMillis();
+
+        List<EndpointRecord> records = new ArrayList<>();
+        records.add(
+            new EndpointRecord(
+                "https://cdn.example.com/assets/main.js",
+                "cdn.example.com",
+                "https://app.example.com/page-a",
+                "GET",
+                null,
+                1,
+                now,
+                now
+            )
+        );
+        records.add(
+            new EndpointRecord(
+                "https://cdn.example.com/assets/Agent.js",
+                "cdn.example.com",
+                "https://app.example.com/page-b",
+                "GET",
+                null,
+                1,
+                now,
+                now
+            )
+        );
+        records.add(
+            new EndpointRecord(
+                "https://api.example.com/v1/orders",
+                "api.example.com",
+                "https://app.example.com/Agent-dashboard",
+                "GET",
+                null,
+                1,
+                now,
+                now
+            )
+        );
+
+        List<EndpointRecord> endpointOnly = filterService.filter(records, "page-a");
+        assertTrue(endpointOnly.isEmpty(), "search scope should be endpoint column only");
+
+        List<EndpointRecord> globAndExclude = filterService.filter(records, "*.js !Agent", false);
+        assertTrue(globAndExclude.size() == 1, "glob include/exclude filtering mismatch");
+        assertTrue(
+            "https://cdn.example.com/assets/main.js".equals(globAndExclude.get(0).getEndpointUrl()),
+            "glob include/exclude endpoint mismatch"
+        );
+
+        List<EndpointRecord> regexAndExclude = filterService.filter(records, "\\.js$ !agent", true);
+        assertTrue(regexAndExclude.size() == 1, "regex include/exclude filtering mismatch");
+        assertTrue(
+            "https://cdn.example.com/assets/main.js".equals(regexAndExclude.get(0).getEndpointUrl()),
+            "regex include/exclude endpoint mismatch"
+        );
+
+        List<EndpointRecord> exclusionOnly = filterService.filter(records, "!orders", false);
+        assertTrue(exclusionOnly.size() == 2, "exclusion-only filtering mismatch");
     }
 
     private static void testHtmlEntityDecoding() {

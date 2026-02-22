@@ -23,7 +23,10 @@ This project respects and appreciates the work of the open-source security commu
   - HTML entity decoding (`&amp;`, `&#39;`, `&#x27;`, `&#47;`, etc.)
   - Dynamic token normalization (`:id`, `${var}`, `[id]` -> `{...}`)
   - Regex/noise false-positive suppression
-- Filter results by keyword.
+- Filter endpoints by endpoint column only:
+  - Plain mode supports token include/exclude with wildcard (`*`, `?`)
+  - Prefix a token with `!` to exclude matches (example: `*.js !Agent`)
+  - Optional regex mode via `Regex` checkbox
 - Export results to CSV.
 - Send selected endpoints to Repeater (multi-select supported, source method/headers reused when possible, `Ctrl+R` in tab).
 
@@ -72,7 +75,9 @@ Output artifact:
    <br/><img width="800" alt="image" src="https://github.com/user-attachments/assets/9f218fa9-628b-4d8d-b358-80405ad7ec7d" />
 
 3. Review collected endpoints in the `Link Radar` tab.
-4. Optionally filter with the search box.
+4. Optionally filter with the search box (endpoint column only).
+   - Plain mode example: `*.js !Agent`
+   - Regex mode: check `Regex`, then use regex tokens (example: `\\.js$ !agent`)
 5. Select one or more rows and click `Send to Repeater` (or `Ctrl+R` inside the tab).
    <img width="800"  alt="image" src="https://github.com/user-attachments/assets/2b722524-af05-4d0c-a49d-22ca88855be8" />
 6. Optionally export with `Export CSV`.

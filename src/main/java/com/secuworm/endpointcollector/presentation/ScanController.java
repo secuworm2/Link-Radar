@@ -174,6 +174,7 @@ public class ScanController {
     private void bindActions() {
         tabView.getExportButton().addActionListener(event -> onExportClicked());
         tabView.getSendToRepeaterButton().addActionListener(event -> onSendToRepeaterClicked());
+        tabView.getRegexCheckBox().addActionListener(event -> applyFilterAndRender());
         tabView.getSearchField().addActionListener(event -> applyFilterAndRender());
         tabView.getSearchField().getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -257,7 +258,7 @@ public class ScanController {
         synchronized (lock) {
             records = new ArrayList<>(allRecords);
         }
-        List<EndpointRecord> filtered = filterService.filter(records, keyword);
+        List<EndpointRecord> filtered = filterService.filter(records, keyword, tabView.isRegexSearchEnabled());
         synchronized (lock) {
             filteredRecords = new ArrayList<>(filtered);
         }

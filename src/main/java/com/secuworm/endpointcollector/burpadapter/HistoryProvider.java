@@ -5,7 +5,6 @@ import burp.api.montoya.http.message.HttpHeader;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
-import burp.api.montoya.proxy.ProxyHttpRequestResponse;
 import com.secuworm.endpointcollector.domain.RequestHeader;
 import com.secuworm.endpointcollector.infra.ExtensionLogger;
 
@@ -24,29 +23,11 @@ public class HistoryProvider {
     }
 
     public List<HistoryItemPayload> getDecodedHistoryItems(String scopeType, List<?> selectedItems) {
-        if ("selected".equals(scopeType)) {
-            return decodeSelectedItems(selectedItems);
+        if (!"selected".equals(scopeType)) {
+            logError("unsupported scope type: " + scopeType);
+            return new ArrayList<>();
         }
-        return decodeProxyHistory();
-    }
-
-    private List<HistoryItemPayload> decodeProxyHistory() {
-        List<HistoryItemPayload> decoded = new ArrayList<>();
-        List<ProxyHttpRequestResponse> historyItems;
-        try {
-            historyItems = api.proxy().history();
-        } catch (Exception ex) {
-            logError("proxy history read failed: " + ex.getMessage());
-            return decoded;
-        }
-
-        for (ProxyHttpRequestResponse item : historyItems) {
-            HistoryItemPayload payload = decodeProxyItem(item);
-            if (payload != null) {
-                decoded.add(payload);
-            }
-        }
-        return decoded;
+        return decodeSelectedItems(selectedItems);
     }
 
     private List<HistoryItemPayload> decodeSelectedItems(List<?> selectedItems) {
@@ -71,20 +52,6 @@ public class HistoryProvider {
             return decodeHttpItem((HttpRequestResponse) item);
         }
         return decodeReflectiveItem(item);
-    }
-
-    private HistoryItemPayload decodeProxyItem(ProxyHttpRequestResponse item) {
-        if (item == null) {
-            return null;
-        }
-        try {
-            HttpRequest request = item.finalRequest();
-            HttpResponse response = item.response();
-            return decode(request, response);
-        } catch (Exception ex) {
-            logError("proxy history decode failed: " + ex.getMessage());
-            return null;
-        }
     }
 
     private HistoryItemPayload decodeHttpItem(HttpRequestResponse item) {

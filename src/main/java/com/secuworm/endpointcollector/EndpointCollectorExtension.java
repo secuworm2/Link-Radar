@@ -2,6 +2,7 @@ package com.secuworm.endpointcollector;
 
 import burp.api.montoya.BurpExtension;
 import burp.api.montoya.MontoyaApi;
+import burp.api.montoya.core.Registration;
 import com.secuworm.endpointcollector.application.ExportService;
 import com.secuworm.endpointcollector.application.FilterService;
 import com.secuworm.endpointcollector.application.ScanService;
@@ -41,19 +42,47 @@ public class EndpointCollectorExtension implements BurpExtension {
             filterService,
             exportService,
             repeaterSender,
+            api.userInterface().swingUtils(),
             logger
         );
 
-        api.userInterface().registerSuiteTab(EXTENSION_NAME, tabView.getRootComponent());
-        api.userInterface().registerContextMenuItemsProvider(
+        Registration suiteTabRegistration = api.userInterface().registerSuiteTab(EXTENSION_NAME, tabView.getRootComponent());
+        Registration contextMenuRegistration = api.userInterface().registerContextMenuItemsProvider(
             new EndpointContextMenuItemsProvider(scanController, logger)
         );
-        registerHotKeyIfSupported(api, scanController, logger);
+        Registration hotKeyRegistration = registerHotKeyIfSupported(api, scanController, logger);
+        api.extension().registerUnloadingHandler(() ->
+            onExtensionUnloaded(scanController, logger, suiteTabRegistration, contextMenuRegistration, hotKeyRegistration)
+        );
         api.userInterface().applyThemeToComponent(tabView.getRootComponent());
         logger.info("Extension loaded.");
     }
 
-    private void registerHotKeyIfSupported(MontoyaApi api, ScanController scanController, ExtensionLogger logger) {
+    private void onExtensionUnloaded(
+        ScanController scanController,
+        ExtensionLogger logger,
+        Registration suiteTabRegistration,
+        Registration contextMenuRegistration,
+        Registration hotKeyRegistration
+    ) {
+        scanController.onExtensionUnloaded();
+        safeDeregister(hotKeyRegistration);
+        safeDeregister(contextMenuRegistration);
+        safeDeregister(suiteTabRegistration);
+        logger.info("Extension unloaded.");
+    }
+
+    private void safeDeregister(Registration registration) {
+        if (registration == null) {
+            return;
+        }
+        try {
+            registration.deregister();
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private Registration registerHotKeyIfSupported(MontoyaApi api, ScanController scanController, ExtensionLogger logger) {
         try {
             Object userInterface = api.userInterface();
             Method registerWithString = null;
@@ -79,38 +108,47 @@ public class EndpointCollectorExtension implements BurpExtension {
             Method registerMethod = registerWithString != null ? registerWithString : registerWithHotKey;
             if (registerMethod == null) {
                 logger.info("Hotkey registration skipped: unsupported Montoya runtime.");
-                return;
+                return null;
             }
 
             Class<?>[] types = registerMethod.getParameterTypes();
             Object context = resolveContext(types[0]);
             if (context == null) {
                 logger.info("Hotkey registration skipped: no HTTP_MESSAGE_EDITOR context.");
-                return;
+                return null;
             }
 
             Object handler = createHotKeyHandlerProxy(userInterface, types[2], scanController, logger);
             if (handler == null) {
                 logger.info("Hotkey registration skipped: handler proxy unavailable.");
-                return;
+                return null;
             }
 
             if (String.class.equals(types[1])) {
-                registerMethod.invoke(userInterface, context, "Ctrl+G", handler);
+                Object registration = registerMethod.invoke(userInterface, context, "Ctrl+G", handler);
                 logger.info("Hotkey registered: Ctrl+G (HTTP_MESSAGE_EDITOR, string signature).");
-                return;
+                return toRegistration(registration);
             }
 
             Object hotKey = createHotKey(types[1]);
             if (hotKey == null) {
                 logger.info("Hotkey registration skipped: HotKey factory unavailable.");
-                return;
+                return null;
             }
-            registerMethod.invoke(userInterface, context, hotKey, handler);
+            Object registration = registerMethod.invoke(userInterface, context, hotKey, handler);
             logger.info("Hotkey registered: Ctrl+G (HTTP_MESSAGE_EDITOR, HotKey signature).");
+            return toRegistration(registration);
         } catch (Throwable throwable) {
             logger.info("Hotkey registration skipped: " + throwable.getClass().getSimpleName());
+            return null;
         }
+    }
+
+    private Registration toRegistration(Object value) {
+        if (value instanceof Registration) {
+            return (Registration) value;
+        }
+        return null;
     }
 
     private Object createHotKeyHandlerProxy(

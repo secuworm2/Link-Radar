@@ -30,8 +30,6 @@ public class ScanController {
     private final Object lock = new Object();
 
     private boolean isScanning;
-    private boolean stopRequested;
-    private Thread scanThread;
     private List<EndpointRecord> allRecords = new ArrayList<>();
     private List<EndpointRecord> filteredRecords = new ArrayList<>();
 
@@ -63,7 +61,6 @@ public class ScanController {
                 return false;
             }
             isScanning = true;
-            stopRequested = false;
         }
 
         setControlsScanning(true);
@@ -71,9 +68,6 @@ public class ScanController {
 
         Thread worker = new Thread(() -> runScan(scopeType, selectedItems), "endpoint-scan-worker");
         worker.setDaemon(true);
-        synchronized (lock) {
-            scanThread = worker;
-        }
         worker.start();
         return true;
     }
@@ -91,22 +85,9 @@ public class ScanController {
         runOnUi(() -> tabView.setStatus(message));
     }
 
-    public boolean stopScan() {
-        synchronized (lock) {
-            if (!isScanning) {
-                notifyStatus("No scan in progress.");
-                return false;
-            }
-            stopRequested = true;
-        }
-        notifyStatus("Stop requested.");
-        return true;
-    }
-
     private void runScan(String scopeType, List<?> selectedItems) {
         ScanResult scanResult = null;
         boolean failed = false;
-        boolean stopped;
 
         try {
             List<HistoryItemPayload> historyItems = historyProvider.getDecodedHistoryItems(scopeType, selectedItems);
@@ -114,7 +95,7 @@ public class ScanController {
                 historyItems,
                 (totalItems, processedItems, errorCount, uniqueEndpoints) ->
                     notifyStatus("Scanning: " + processedItems + "/" + totalItems + ", errors=" + errorCount + ", unique=" + uniqueEndpoints),
-                this::isStopRequested
+                () -> false
             );
 
             List<EndpointRecord> records = scanService.getRecords();
@@ -127,10 +108,7 @@ public class ScanController {
             logError("scan failed: " + ex.getMessage());
         } finally {
             synchronized (lock) {
-                stopped = stopRequested;
                 isScanning = false;
-                stopRequested = false;
-                scanThread = null;
             }
         }
 
@@ -144,25 +122,11 @@ public class ScanController {
             notifyStatus("Scan stopped.");
             return;
         }
-        if (stopped) {
-            notifyStatus(
-                "Stopped: " + scanResult.getProcessedItems() + "/" + scanResult.getTotalItems()
-                    + ", errors=" + scanResult.getErrorCount()
-                    + ", unique=" + scanResult.getUniqueEndpoints()
-            );
-            return;
-        }
         notifyStatus(
             "Completed: " + scanResult.getProcessedItems() + "/" + scanResult.getTotalItems()
                 + ", errors=" + scanResult.getErrorCount()
                 + ", unique=" + scanResult.getUniqueEndpoints()
         );
-    }
-
-    private boolean isStopRequested() {
-        synchronized (lock) {
-            return stopRequested;
-        }
     }
 
     private void bindActions() {

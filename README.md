@@ -2,6 +2,12 @@
 
 Link Radar is a Burp Suite extension that extracts endpoint URLs from HTTP response bodies and helps you triage and replay them quickly.
 
+## Positioning
+
+Link Radar focuses on proxy-history triage and fast replay workflows inside Burp.
+It is intended to complement existing endpoint discovery tools, including JS-focused tools, by emphasizing selected-history collection, endpoint normalization, and quick handoff to Repeater.
+This project respects and appreciates the work of the open-source security community.
+
 ## Key Features
 
 - Collect endpoints from selected Proxy HTTP history items.

@@ -2,6 +2,12 @@
 
 Link Radar는 HTTP 응답 본문에서 endpoint URL을 추출하고, 빠르게 분석/재현할 수 있도록 도와주는 Burp Suite 익스텐션입니다.
 
+## 포지셔닝
+
+Link Radar는 Burp 내부에서 Proxy history 기반 분석(triage)과 빠른 재현(replay) 워크플로우에 집중합니다.
+기존 endpoint 탐지 도구(특히 JS 중심 도구)를 대체하기보다, 선택 항목 기반 수집, endpoint 정규화, Repeater 연계를 강화하는 보완적 도구를 목표로 합니다.
+본 프로젝트는 오픈소스 보안 커뮤니티의 기여를 존중합니다.
+
 ## 주요 기능
 
 - Proxy HTTP history에서 선택한 항목 기준으로 endpoint 수집

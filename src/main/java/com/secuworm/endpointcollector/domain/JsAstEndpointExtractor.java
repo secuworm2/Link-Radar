@@ -57,14 +57,18 @@ public class JsAstEndpointExtractor {
         Map<String, String> constants = collectStringConstants(root);
         Set<String> discovered = new LinkedHashSet<>();
 
-        root.visit(node -> {
-            if (node instanceof FunctionCall) {
-                extractFromFunctionCall((FunctionCall) node, constants, discovered);
-            } else if (node instanceof NewExpression) {
-                extractFromNewExpression((NewExpression) node, constants, discovered);
-            }
-            return true;
-        });
+        try {
+            root.visit(node -> {
+                if (node instanceof FunctionCall) {
+                    extractFromFunctionCall((FunctionCall) node, constants, discovered);
+                } else if (node instanceof NewExpression) {
+                    extractFromNewExpression((NewExpression) node, constants, discovered);
+                }
+                return true;
+            });
+        } catch (Exception ex) {
+            // Rhino AST visitor may throw for non-standard syntax (e.g. optional catch binding)
+        }
 
         return new ArrayList<>(discovered);
     }
@@ -75,16 +79,20 @@ public class JsAstEndpointExtractor {
             return new ArrayList<>();
         }
         List<SourceRange> ranges = new ArrayList<>();
-        root.visit(node -> {
-            if (node instanceof RegExpLiteral) {
-                int start = node.getAbsolutePosition();
-                int end = start + node.getLength();
-                if (start >= 0 && end > start) {
-                    ranges.add(new SourceRange(start, end));
+        try {
+            root.visit(node -> {
+                if (node instanceof RegExpLiteral) {
+                    int start = node.getAbsolutePosition();
+                    int end = start + node.getLength();
+                    if (start >= 0 && end > start) {
+                        ranges.add(new SourceRange(start, end));
+                    }
                 }
-            }
-            return true;
-        });
+                return true;
+            });
+        } catch (Exception ex) {
+            // Rhino AST visitor may throw for non-standard syntax (e.g. optional catch binding)
+        }
         return ranges;
     }
 
@@ -110,6 +118,7 @@ public class JsAstEndpointExtractor {
 
     private Map<String, String> collectStringConstants(AstRoot root) {
         Map<String, String> constants = new HashMap<>();
+        try {
         root.visit(node -> {
             if (!(node instanceof VariableInitializer)) {
                 return true;
@@ -130,6 +139,9 @@ public class JsAstEndpointExtractor {
             }
             return true;
         });
+        } catch (Exception ex) {
+            // Rhino AST visitor may throw for non-standard syntax (e.g. optional catch binding)
+        }
         return constants;
     }
 

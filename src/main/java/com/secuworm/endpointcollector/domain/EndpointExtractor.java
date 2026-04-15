@@ -17,7 +17,7 @@ public class EndpointExtractor {
     private static final Pattern FETCH_CALL_PATTERN = Pattern.compile("\\bfetch\\s*\\(\\s*([\"'`])([^\"'`]+)\\1", Pattern.CASE_INSENSITIVE);
     private static final Pattern AXIOS_METHOD_PATTERN = Pattern.compile("\\baxios\\s*\\.\\s*(?:get|post|put|patch|delete|head|options)\\s*\\(\\s*([\"'`])([^\"'`]+)\\1", Pattern.CASE_INSENSITIVE);
     private static final Pattern AXIOS_CONFIG_URL_PATTERN = Pattern.compile("\\baxios\\s*\\(\\s*\\{[^\\}]*?\\burl\\s*:\\s*([\"'`])([^\"'`]+)\\1", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-    private static final Pattern XHR_OPEN_PATTERN = Pattern.compile("\\.open\\s*\\(\\s*(?:[\"'`][A-Za-z]+[\"'`]\\s*,\\s*)?([\"'`])([^\"'`]+)\\1", Pattern.CASE_INSENSITIVE);
+    private static final Pattern XHR_OPEN_PATTERN = Pattern.compile("\\.open\\s*\\(\\s*(?:[\"'`][A-Za-z]+[\"'`]\\s*,\\s*)?+([\"'`])([^\"'`]+)\\1", Pattern.CASE_INSENSITIVE);
     private static final Pattern NEW_URL_PATTERN = Pattern.compile("\\bnew\\s+URL\\s*\\(\\s*([\"'`])([^\"'`]+)\\1", Pattern.CASE_INSENSITIVE);
     private static final Pattern FRAMEWORK_ROUTE_PATTERN = Pattern.compile("\\b(?:app|router|fastify)\\s*\\.\\s*(?:get|post|put|patch|delete|head|options|all|use|route)\\s*\\(\\s*([\"'`])([^\"'`]+)\\1", Pattern.CASE_INSENSITIVE);
     private static final Pattern FASTIFY_ROUTE_OBJECT_PATTERN = Pattern.compile("\\bfastify\\s*\\.\\s*route\\s*\\(\\s*\\{[^\\}]*?\\b(?:url|path)\\s*:\\s*([\"'`])([^\"'`]+)\\1", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
@@ -78,8 +78,12 @@ public class EndpointExtractor {
         collectGroupCandidates(candidates, seen, ROUTE_OBJECT_PATH_PATTERN.matcher(responseText), 2, effectiveContentType, sourceUrl);
 
         for (String javascriptSource : collectJavaScriptSources(responseText, effectiveContentType)) {
-            List<String> astCandidates = jsAstEndpointExtractor.extract(javascriptSource);
-            collectListCandidates(candidates, seen, astCandidates, effectiveContentType, sourceUrl);
+            try {
+                List<String> astCandidates = jsAstEndpointExtractor.extract(javascriptSource);
+                collectListCandidates(candidates, seen, astCandidates, effectiveContentType, sourceUrl);
+            } catch (Exception ex) {
+                // AST extraction failure must not discard regex-found candidates
+            }
         }
 
         return candidates;

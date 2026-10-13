@@ -1,7 +1,7 @@
 TASK-M06 Hotkey Constraints
 
 Supported
-- Hotkey: Ctrl+G
+- Hotkey: Ctrl+Shift+X
 - Registration API: Montoya `registerHotKeyHandler`
 - Context: `HTTP_MESSAGE_EDITOR`
 - Action: selected/editor message is forwarded to Endpoint Collector selected-scan path

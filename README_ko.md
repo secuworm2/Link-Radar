@@ -13,7 +13,7 @@ Link Radar는 Burp 내부에서 Proxy history 기반 분석(triage)과 빠른 �
 - Proxy HTTP history에서 선택한 항목 기준으로 endpoint 수집
 - 수집 트리거:
   - 우클릭 메뉴: `Send to Link Radar`
-  - 단축키: `Ctrl+G`
+  - 단축키: `Ctrl+Shift+X`
 - 다음 패턴에서 endpoint 후보 추출:
   - 절대 URL
   - 루트 상대 경로 (`/api/...`)
@@ -52,7 +52,7 @@ Windows:
 
 출력 산출물:
 
-- `build/libs/link-radar-1.0.jar`
+- `build/libs/link-radar-1.02.jar`
 
 ## Burp 로드 방법
 
@@ -60,7 +60,7 @@ Windows:
 2. `Extensions` -> `Installed`로 이동합니다.
 3. `Add`를 클릭합니다.
 4. Extension type에서 `Java`를 선택합니다.
-5. `build/libs/link-radar-1.0.jar`를 선택합니다.
+5. `build/libs/link-radar-1.02.jar`를 선택합니다.
 
    <img width="700" alt="image" src="https://github.com/user-attachments/assets/0033d1aa-d252-40ca-b1a6-dbafe32b789f" />
 
@@ -69,7 +69,7 @@ Windows:
 ## 사용 방법
 
 1. `Proxy` -> `HTTP history`에서 메시지 1개 이상을 선택합니다.
-2. 우클릭 후 `Send to Link Radar`를 실행합니다 (`Ctrl+G`가 가능하면 단축키 사용).
+2. 우클릭 후 `Send to Link Radar`를 실행합니다 (`Ctrl+Shift+X`가 가능하면 단축키 사용).
 
    <img width="800" alt="image" src="https://github.com/user-attachments/assets/1b96b7e8-d1b4-4c30-84dc-df3b3cd07149" /><br/>
    OR

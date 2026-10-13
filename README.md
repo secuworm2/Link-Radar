@@ -13,7 +13,7 @@ This project respects and appreciates the work of the open-source security commu
 - Collect endpoints from selected Proxy HTTP history items.
 - Trigger collection from:
   - Proxy history context menu: `Send to Link Radar`
-  - Hotkey: `Ctrl+G` 
+  - Hotkey: `Ctrl+Shift+X` 
 - Parse endpoint candidates from:
   - Absolute URLs
   - Root-relative paths (`/api/...`)
@@ -52,7 +52,7 @@ Windows:
 
 Output artifact:
 
-- `build/libs/link-radar-1.0.jar`
+- `build/libs/link-radar-1.02.jar`
 
 ## Load in Burp
 
@@ -60,7 +60,7 @@ Output artifact:
 2. Go to `Extensions` -> `Installed`.
 3. Click `Add`.
 4. Choose extension type `Java`.
-5. Select `build/libs/link-radar-1.0.jar`.
+5. Select `build/libs/link-radar-1.02.jar`.
 
    <img width="700" alt="image" src="https://github.com/user-attachments/assets/0033d1aa-d252-40ca-b1a6-dbafe32b789f" />
 
@@ -69,7 +69,7 @@ Output artifact:
 ## Usage
 
 1. In `Proxy` -> `HTTP history`, select one or more messages.
-2. Right-click and choose `Send to Link Radar` (or use `Ctrl+G` if enabled).
+2. Right-click and choose `Send to Link Radar` (or use `Ctrl+Shift+X` if enabled).
    <img width="800" alt="image" src="https://github.com/user-attachments/assets/1b96b7e8-d1b4-4c30-84dc-df3b3cd07149" /><br/>
    OR
    <br/><img width="800" alt="image" src="https://github.com/user-attachments/assets/9f218fa9-628b-4d8d-b358-80405ad7ec7d" />

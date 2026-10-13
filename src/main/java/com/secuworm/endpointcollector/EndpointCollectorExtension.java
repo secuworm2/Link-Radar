@@ -23,6 +23,7 @@ import java.util.Optional;
 
 public class EndpointCollectorExtension implements BurpExtension {
     public static final String EXTENSION_NAME = "Link Radar";
+    private static final String HOTKEY = "Ctrl+Shift+X";
 
     @Override
     public void initialize(MontoyaApi api) {
@@ -125,8 +126,8 @@ public class EndpointCollectorExtension implements BurpExtension {
             }
 
             if (String.class.equals(types[1])) {
-                Object registration = registerMethod.invoke(userInterface, context, "Ctrl+G", handler);
-                logger.info("Hotkey registered: Ctrl+G (HTTP_MESSAGE_EDITOR, string signature).");
+                Object registration = registerMethod.invoke(userInterface, context, HOTKEY, handler);
+                logger.info("Hotkey registered: " + HOTKEY + " (HTTP_MESSAGE_EDITOR, string signature).");
                 return toRegistration(registration);
             }
 
@@ -136,7 +137,7 @@ public class EndpointCollectorExtension implements BurpExtension {
                 return null;
             }
             Object registration = registerMethod.invoke(userInterface, context, hotKey, handler);
-            logger.info("Hotkey registered: Ctrl+G (HTTP_MESSAGE_EDITOR, HotKey signature).");
+            logger.info("Hotkey registered: " + HOTKEY + " (HTTP_MESSAGE_EDITOR, HotKey signature).");
             return toRegistration(registration);
         } catch (Throwable throwable) {
             logger.info("Hotkey registration skipped: " + throwable.getClass().getSimpleName());
@@ -188,7 +189,7 @@ public class EndpointCollectorExtension implements BurpExtension {
     private Object createHotKey(Class<?> hotKeyClass) {
         try {
             Method factoryMethod = hotKeyClass.getMethod("hotKey", String.class, String.class);
-            return factoryMethod.invoke(null, "Send to Link Radar", "Ctrl+G");
+            return factoryMethod.invoke(null, "Send to Link Radar", HOTKEY);
         } catch (Throwable throwable) {
             return null;
         }
